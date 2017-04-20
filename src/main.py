@@ -1,21 +1,147 @@
 import sys
 import cv2
+import itertools
 import numpy as np
 
 def main():
     print('lol')
-    print(sys.argv[1])
-    img = cv2.imread(sys.argv[1], 1)
-    print_image(img)
-    imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    print_image(imgray)
+    imgPath = chooseImagePath()
+    imgPathRef = chooseImagePathRef()
 
-    im2, contours, hierarchy = cv2.findContours(imgray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #cnt = contours[4]
-    #cv2.drawContours(img, [cnt], 0, (0, 255, 0), 3)
-    cv2.drawContours(img, contours, -1, (0, 255, 0), 3)
-
+    img = cv2.imread(imgPath, 1)
+    imgRef = cv2.imread(imgPathRef, 1)
     print_image(img)
+    print_image(imgRef)
+    #randomTry(img)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    print_image(gray)
+    sift = cv2.xfeatures2d.SIFT_create()
+    (skp, sd) = sift.detectAndCompute(img, None)
+    print("#IMG kps: {}, descriptors: {}".format(len(skp), sd.shape))
+    (tkp, td) = sift.detectAndCompute(imgRef, None)
+    print("#REF  kps: {}, descriptors: {}".format(len(tkp), td.shape))
+    #cv2.drawKeypoints(gray, tkp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    #print_image(img)
+
+    flann_params = dict(algorithm=1, trees=4)
+    flann = cv2.flann.Index(sd, flann_params)
+    idx, dist = flann.knnSearch(td, 1, params={})
+    del flann
+
+    dist = dist[:, 0] / 2500.0
+    dist = dist.reshape(-1, ).tolist()
+    idx = idx.reshape(-1).tolist()
+    indices = list(range(len(dist)))
+    indices.sort(key=lambda i: dist[i])
+    dist = [dist[i] for i in indices]
+    idx = [idx[i] for i in indices]
+
+    skp_final = []
+    for i, dis in zip(idx, dist):
+        if dis < 10:
+            skp_final.append(skp[i])
+        else:
+            break
+
+    print("#FINAL kps: {}".format(len(skp_final)))
+    cv2.drawKeypoints(imgRef, tkp, imgRef, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    print_image(imgRef)
+    cv2.drawKeypoints(gray, skp_final, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    print_image(img)
+
+    printKeyDiff(img, imgRef, skp_final, tkp)
+
+
+    #lower_white = np.array([0, 0, 0])
+    #upper_white = np.array([0, 0, 255])
+    #myMask2 = cv2.inRange(imgHSV, lower_white, upper_white)
+    #print_image(myMask2)
+    # TODO: dans le mask, dilater + erosion pour trouver les carres noir
+    # foutre des marqueurs dans les carres trouves
+    # avec signature chercher les ecriture Minute maid? (chaud car arrondis)
+
+
+    #kernel = np.ones((3,3), np.uint8)
+    #Faire du close est une mauvaise idee, on va juste close entre le POMME en dessous et le rectangle
+    #n = 6
+    #myMaskEr = cv2.erode(myMask, kernel, iterations=n)
+    #print_image(myMaskEr)
+    #myMaskEr = cv2.dilate(myMaskEr, kernel, iterations=n)
+    #print_image(myMaskEr)
+    #res = cv2.bitwise_and(myMask, myMask, mask=myMaskEr)
+    #print_image(res)
+
+
+def printKeyDiff(img, imgRef, skp_final, tkp):
+    # nice print
+    h1, w1 = img.shape[:2]
+    h2, w2 = imgRef.shape[:2]
+    nWidth = w1 + w2
+    nHeight = max(h1, h2)
+    newimg = np.zeros((nHeight, nWidth, 3), np.uint8)
+    newimg[:h2, :w2] = imgRef
+    newimg[:h1, w2:w1 + w2] = img
+    tkp = tkp
+    skp = skp_final
+    for i in range(min(len(tkp), len(skp))):
+        pt_a = (int(tkp[i].pt[0]), int(tkp[i].pt[1]))
+        pt_b = (int(skp[i].pt[0] + w2), int(skp[i].pt[1]))
+        cv2.line(newimg, pt_a, pt_b, (0, 0, 255))
+    print_image(newimg)
+
+
+def randomTry(img):
+    # imgGray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # print_image(imgGray)
+    # imgGray = cv2.cvtColor(imgGray, cv2.COLOR_GRAY2RGB)
+    # print_image(imgGray)
+    imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    print_image(imgHSV)
+    lower_black = np.array([0, 0, 0])
+    upper_black = np.array([180, 255, 50])
+    myMask = cv2.inRange(imgHSV, lower_black, upper_black)
+    print_image(myMask)
+
+def chooseImagePathRef():
+    #TEST
+    #imgPath = "../resources/ref_canette.jpg"
+    imgPath = "../resources/ref_logo.jpg"
+    return imgPath
+
+def chooseImagePath():
+    #TEST
+    #imgPath = "../resources/ref_canette.jpg"
+    #EASY
+    imgPath = "../resources/facile/20160524_163619.jpg"
+    #imgPath = "../resources/facile/20160525_143739.jpg"
+    #imgPath = "../resources/facile/20160525_144343.jpg"
+    #imgPath = "../resources/facile/20160525_145003.jpg"
+    #QUASIFACILE
+    #imgPath = "../resources/quasi_facile/20160506_125941.jpg" #DESSUS
+    #imgPath = "../resources/quasi_facile/20160525_143735.jpg" #DEVANT FENETRE
+    #imgPath = "../resources/quasi_facile/20160525_144433.jpg" #DISTORSION
+    #imgPath = "../resources/quasi_facile/20160506_130022.jpg" #FAIL
+    #imgPath = "../resources/quasi_facile/20160525_143754.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_144511.jpg"
+    #imgPath = "../resources/quasi_facile/20160515_165208.jpg" #FAIL
+    #imgPath = "../resources/quasi_facile/20160525_144248.jpg" #BOULE ANTISTRESS
+    #imgPath = "../resources/quasi_facile/20160525_144527.jpg" #OMBRE
+    #imgPath = "../resources/quasi_facile/20160515_165214.jpg" #FAIL
+    #imgPath = "../resources/quasi_facile/20160525_144412.jpg" #NATURE
+    #imgPath = "../resources/quasi_facile/20160525_144533.jpg"
+    #imgPath = "../resources/quasi_facile/20160523_190950.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_144416.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_145157.jpg"
+    #imgPath = "../resources/quasi_facile/20160523_191142.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_144422.jpg"
+    #imgPath = "../resources/quasi_facile/photo_mm.jpg"
+    #imgPath = "../resources/quasi_facile/20160523_191210.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_144427.jpg"
+    #imgPath = "../resources/quasi_facile/20160523_191304.jpg"
+    #imgPath = "../resources/quasi_facile/20160525_144430.jpg"
+    print(imgPath)
+    return imgPath
 
 
 def applyFilter(img):
@@ -25,7 +151,7 @@ def applyFilter(img):
 
 
 def applyCanny(img):
-    edges = cv2.Canny(img, 200, 200)
+    edges = cv2.Canny(img, 200, 100)
     print_image(edges)
     return edges
 
