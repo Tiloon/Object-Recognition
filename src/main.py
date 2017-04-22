@@ -1,7 +1,7 @@
-import sys
 import cv2
-import itertools
 import numpy as np
+
+from mySift import getOctaves, doSift
 
 
 def main():
@@ -10,7 +10,8 @@ def main():
 
     img = cv2.imread(imgPath, 1)
     imgRef = cv2.imread(imgPathRef, 1)
-    # print_image(img)
+    print_image(img)
+    doSift(img)
     # print_image(imgRef)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -77,6 +78,37 @@ def main():
     # res = cv2.bitwise_and(myMask, myMask, mask=myMaskEr)
     # print_image(res)
 
+# def saveRef():
+#     imgRefPath = chooseImagePathRef()
+#     imgRef = cv2.imread(imgRefPath, 1)
+#     gray = cv2.cvtColor(imgRef, cv2.COLOR_BGR2GRAY)
+#     print_image(gray)
+#     sift = cv2.xfeatures2d.SIFT_create()
+#     (skp, sd) = sift.detectAndCompute(imgRef, None)
+#
+#     index = []
+#     for point in skp:
+#         temp = (point.pt, point.size, point.angle, point.response, point.octave,
+#                 point.class_id)
+#         index.append(temp)
+#
+#     # Dump the keypoints
+#     f = open("keypoints.txt", "w")
+#     f.write(pickle.dumps(index))
+#     f.close()
+#
+# def loadRef():
+#     # TODO: fix this
+#     index = pickle.loads(open("keypoints.txt").read())
+#
+#     kp = []
+#
+#     for point in index:
+#         temp = cv2.KeyPoint(x=point[0][0], y=point[0][1], _size=point[1], _angle=point[2],
+#                             _response=point[3], _octave=point[4], _class_id=point[5])
+#         kp.append(temp)
+#
+#     return kp
 
 def findBox(img, skp_final):
     xCenter, yCenter = findCenter(skp_final)
@@ -220,10 +252,10 @@ def chooseImagePath():
     # imgPath = "../resources/quasi_facile/20160525_144248.jpg" #BOULE ANTISTRESS
     # imgPath = "../resources/quasi_facile/20160525_144527.jpg" #OMBRE
     # imgPath = "../resources/quasi_facile/20160515_165214.jpg" #FAIL
-    imgPath = "../resources/quasi_facile/20160525_144412.jpg" #NATURE
+    # imgPath = "../resources/quasi_facile/20160525_144412.jpg" #NATURE
     # imgPath = "../resources/quasi_facile/20160525_144533.jpg"
     # imgPath = "../resources/quasi_facile/20160523_190950.jpg"
-    # imgPath = "../resources/quasi_facile/20160525_144416.jpg"
+    imgPath = "../resources/quasi_facile/20160525_144416.jpg"
     # imgPath = "../resources/quasi_facile/20160525_145157.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191142.jpg"
     # imgPath = "../resources/quasi_facile/20160525_144422.jpg" # HARD
