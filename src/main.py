@@ -11,9 +11,12 @@ def main():
     img = cv2.imread(imgPath, 1)
     imgRef = cv2.imread(imgPathRef, 1)
     print_image(img)
-    doSift(img)
+    img= cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
+    img= cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
+    imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    doSift(imgGray)
     # print_image(imgRef)
-
+    return
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # print_image(gray)
     sift = cv2.xfeatures2d.SIFT_create()
