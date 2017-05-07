@@ -11,12 +11,26 @@ def main():
     img = cv2.imread(imgPath, 1)
     imgRef = cv2.imread(imgPathRef, 1)
     print_image(img)
-    img= cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
-    img= cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
-    imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    doSift(imgGray)
+    myImg = img.copy()
+    nbResize = 0
+    for i in range(nbResize):
+        myImg = cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
+    imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)
+    myKps = doSift(imgGray)
+    myFinalImg = img.copy()
+    for i in range(len(myKps)):
+        for j in range(0, len(myKps[i])):
+            for kp in myKps[i][j]:
+                x, y = kp
+                x, y = x * (2 ** (i + nbResize)), y * (2 ** (i + nbResize))
+                cv2.circle(myFinalImg, (x, y), 10, color('r'), thickness=-1)
+    print_image(myFinalImg)
+    # i == 0 => *2**2
+    #      1 => *2**2
+    #      2 => *2**2
+
     # print_image(imgRef)
-    return
+    # return
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # print_image(gray)
     sift = cv2.xfeatures2d.SIFT_create()
@@ -24,8 +38,10 @@ def main():
     print("#IMG kps: {}, descriptors: {}".format(len(skp), sd.shape))
     (tkp, td) = sift.detectAndCompute(imgRef, None)
     print("#REF  kps: {}, descriptors: {}".format(len(tkp), td.shape))
-    # cv2.drawKeypoints(gray, tkp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    # print_image(img)
+    # cv2.drawKeypoints(imgRef, tkp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    cv2.drawKeypoints(img, skp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    print_image(img)
+    return
 
     flann_params = dict(algorithm=1, trees=4)
     flann = cv2.flann.Index(sd, flann_params)
@@ -56,10 +72,6 @@ def main():
     printKeyDiff(img, imgRef, skp_final, tkp)
 
     findBox(img, skp_final)
-
-
-
-
 
 
     # lower_white = np.array([0, 0, 0])

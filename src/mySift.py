@@ -58,7 +58,7 @@ def findKeyPoints(diffOctaves):
     return res
 
 
-def findCorners(img, kpList, window_size, thresh=0, k=0.05):
+def findCorners(img, kpList, thresh=-1, k=0.05):
     dy, dx = np.gradient(img)
     Ixx = dx**2
     Ixy = dy*dx
@@ -66,18 +66,20 @@ def findCorners(img, kpList, window_size, thresh=0, k=0.05):
     height = img.shape[0]
     width = img.shape[1]
     cornerList = []
-    newImg = img.copy()
-    color_img = cv2.cvtColor(newImg, cv2.COLOR_GRAY2RGB)
-    offset = window_size/2
+    # newImg = img.copy()
+    # color_img = cv2.cvtColor(newImg, cv2.COLOR_GRAY2RGB)
+    offsetX, offsetY = width//20, height//20
     #Loop through image and find our corners
     print("Finding Corners...")
     for x, y in kpList:
     # for y in range(offset, height-offset):
     #     for x in range(offset, width-offset):
             #Calculate sum of squares
-        windowIxx = Ixx[y-offset:y+offset+1, x-offset:x+offset+1]
-        windowIxy = Ixy[y-offset:y+offset+1, x-offset:x+offset+1]
-        windowIyy = Iyy[y-offset:y+offset+1, x-offset:x+offset+1]
+        if not (y-offsetY > 0 and y+offsetY+1 < height and x-offsetX > 0 and x+offsetX+1 < width):
+            continue
+        windowIxx = Ixx[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
+        windowIxy = Ixy[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
+        windowIyy = Iyy[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
         Sxx = windowIxx.sum()
         Sxy = windowIxy.sum()
         Syy = windowIyy.sum()
@@ -86,28 +88,29 @@ def findCorners(img, kpList, window_size, thresh=0, k=0.05):
         trace = Sxx + Syy
         r = det - k*(trace**2)
         #If corner response is over threshold, color the point and add to corner list
-        if r > thresh:
+        if r > thresh: #TODO: fix thresh value!
             print(x, y, r)
-            cornerList.append([x, y, r])
-            color_img.itemset((y, x, 0), 0)
-            color_img.itemset((y, x, 1), 0)
-            color_img.itemset((y, x, 2), 255)
-    pass
+            # cornerList.append([x, y, r])
+            cornerList.append([x, y])
+            # color_img.itemset((y, x, 0), 0)
+            # color_img.itemset((y, x, 1), 0)
+            # color_img.itemset((y, x, 2), 255)
+    return cornerList
 
 def cleanKp(kps, octaves):
     for i in range(len(kps)):
-        for j in range(1, len(kps[i]) - 1):
+        for j in range(0, len(kps[i])):
             kpList = kps[i][j]
-            findCorners(octaves[i][0], kpList, octaves[i][0].shape/10)
+            kps[i][j] = findCorners(octaves[i][0], kpList)
 
 
 def doSift(img):
     octaves = getOctaves(img)
     diffOctaves = getDiffOctaves(octaves)
-    kp = findKeyPoints(diffOctaves)
+    kps = findKeyPoints(diffOctaves)
     print('Found the keypoints.')
-    kp = cleanKp(kp, octaves)
-    return
+    cleanKp(kps, octaves)
+    return kps
 
 
 def print_image(img):
