@@ -5,7 +5,8 @@ from mySift import getOctaves, doSift
 
 
 def main():
-    imgPath = chooseImagePath()
+    imgPath = chooseImagePathRef()
+    # imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
 
     img = cv2.imread(imgPath, 1)
@@ -21,9 +22,9 @@ def main():
     for i in range(len(myKps)):
         for j in range(0, len(myKps[i])):
             for kp in myKps[i][j]:
-                x, y = kp
+                y, x = kp
                 x, y = x * (2 ** (i + nbResize)), y * (2 ** (i + nbResize))
-                cv2.circle(myFinalImg, (x, y), 10, color('r'), thickness=-1)
+                cv2.circle(myFinalImg, (x, y), 5 * i, color('r'), thickness=-1)
     print_image(myFinalImg)
     # i == 0 => *2**2
     #      1 => *2**2
@@ -39,8 +40,8 @@ def main():
     (tkp, td) = sift.detectAndCompute(imgRef, None)
     print("#REF  kps: {}, descriptors: {}".format(len(tkp), td.shape))
     # cv2.drawKeypoints(imgRef, tkp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    cv2.drawKeypoints(img, skp, img, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    print_image(img)
+    cv2.drawKeypoints(myFinalImg, skp, myFinalImg, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    print_image(myFinalImg)
     return
 
     flann_params = dict(algorithm=1, trees=4)
@@ -250,7 +251,7 @@ def chooseImagePathRef():
 
 def chooseImagePath():
     # TEST
-    # imgPath = "../resources/ref_canette.jpg"
+    imgPath = "../resources/ref_canette.jpg"
     # EASY
     # imgPath = "../resources/facile/20160524_163619.jpg"
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre
@@ -270,7 +271,7 @@ def chooseImagePath():
     # imgPath = "../resources/quasi_facile/20160525_144412.jpg" #NATURE
     # imgPath = "../resources/quasi_facile/20160525_144533.jpg"
     # imgPath = "../resources/quasi_facile/20160523_190950.jpg"
-    imgPath = "../resources/quasi_facile/20160525_144416.jpg"
+    # imgPath = "../resources/quasi_facile/20160525_144416.jpg"
     # imgPath = "../resources/quasi_facile/20160525_145157.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191142.jpg"
     # imgPath = "../resources/quasi_facile/20160525_144422.jpg" # HARD

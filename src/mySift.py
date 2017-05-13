@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import scipy.ndimage
+import desc
 
 def makeDiff(img1, img2):
     return cv2.absdiff(img1, img2)
@@ -34,8 +36,8 @@ def genMaxMin(img, down, up):
     # res = np.zeros(img.shape)
     res = []
     for i in range(1, len(img) - 1):
+        # for j in np.nonzero(img[i])[0]:
         for j in range(1, len(img[i]) - 1):
-            # res[i][j] = isMaxMin(img[i][j], [down[i - 1][j - 1], down[i][j - 1], down[i + 1][j - 1],
             tmp = isMaxMin(img[i][j], [down[i - 1][j - 1], down[i][j - 1], down[i + 1][j - 1],
                                              down[i - 1][j], down[i][j], down[i + 1][j],
                                              down[i - 1][j + 1], down[i][j + 1], down[i + 1][j + 1],
@@ -53,7 +55,6 @@ def findKeyPoints(diffOctaves):
     res = [[[] for j in range(len(diffOctaves[i]) - 2)] for i in range(len(diffOctaves))]
     for i in range(len(diffOctaves)):
         for j in range(1, len(diffOctaves[i]) - 1):
-            # res[i][j - 1] = genMaxMin(diffOctaves[i][j], diffOctaves[i][j - 1], diffOctaves[i][j + 1])
             res[i][j - 1] = genMaxMin(diffOctaves[i][j], diffOctaves[i][j - 1], diffOctaves[i][j + 1])
     return res
 
@@ -110,7 +111,16 @@ def doSift(img):
     kps = findKeyPoints(diffOctaves)
     print('Found the keypoints.')
     cleanKp(kps, octaves)
+    descriptors = getDescriptors(octaves, kps, )
     return kps
+
+
+def getDescriptors(octaves, kps):
+    res = [[[] for j in range(len(kps[i]))] for i in range(len(kps))]
+    for i in range(len(kps)):
+        for j in range(0, len(kps[i])):
+            res[i][j] = desc.descriptor().creatDes(kps[i][j], octaves[i][0])
+    return res
 
 
 def print_image(img):
@@ -120,16 +130,15 @@ def print_image(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def getOctaves(img, nbOctaves = 4, nbBlur = 5):
+def getOctaves(img, nbOctaves=4, nbBlur=5, sig=1.6):
     res = [[[] for j in range(nbBlur)] for i in range(nbOctaves)]
     tmpImg = img.copy()
     for x in range(nbOctaves):
-        tmpImg2 = tmpImg.copy()
         for y in range(nbBlur):
             pass
-            tmpImg2 = cv2.blur(tmpImg2, (5, 5))
-            res[x][y] = tmpImg2.copy()
-            # print_image(tmpImg2)
+            # tmpImg2 = cv2.blur(tmpImg2, (5, 5))
+            res[x][y] = scipy.ndimage.filters.gaussian_filter(tmpImg, sig ** (y + 1))
+            # print_image(res[x][y])
         tmpImg = cv2.resize(tmpImg, dsize=(0, 0), fx=0.5, fy=0.5)
     return res
 
