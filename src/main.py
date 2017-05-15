@@ -1,31 +1,56 @@
 import cv2
 import numpy as np
 
-from mySift import getOctaves, doSift
+from mySift import doSift, doKDtree
 
 
 def main():
-    imgPath = chooseImagePathRef()
-    # imgPath = chooseImagePath()
+    nbResize = 1
+    circleSize = 5 // (nbResize * 2)
+    imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
 
     img = cv2.imread(imgPath, 1)
-    imgRef = cv2.imread(imgPathRef, 1)
-    print_image(img)
-    myImg = img.copy()
-    nbResize = 0
     for i in range(nbResize):
-        myImg = cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
+        img = cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
+    myImg = img.copy()
     imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)
-    myKps = doSift(imgGray)
+    myDesc, myKps = doSift(imgGray)
+
+    imgRef = cv2.imread(imgPathRef, 1)
+    for i in range(nbResize):
+        imgRef = cv2.resize(imgRef, dsize=(0, 0), fx=0.5, fy=0.5)
+    myImgRef = imgRef.copy()
+    nbResize = 0
+    imgGrayRef = cv2.cvtColor(myImgRef, cv2.COLOR_BGR2GRAY)
+    refDesc, refKps = doSift(imgGrayRef)
+
+    # Adding kps to images in color light blue
+    myFinalImgRef = imgRef.copy()
+    for kp in refKps:
+        y, x = kp[0], kp[1]
+        cv2.circle(myFinalImgRef, (x, y), circleSize, color('lb'), thickness=-1)
+    print_image(myFinalImgRef)
     myFinalImg = img.copy()
-    for i in range(len(myKps)):
-        for j in range(0, len(myKps[i])):
-            for kp in myKps[i][j]:
-                y, x = kp
-                x, y = x * (2 ** (i + nbResize)), y * (2 ** (i + nbResize))
-                cv2.circle(myFinalImg, (x, y), 5 * i, color('r'), thickness=-1)
+    for kp in myKps:
+        y, x = kp[0], kp[1]
+        cv2.circle(myFinalImg, (x, y), circleSize, color('lb'), thickness=-1)
     print_image(myFinalImg)
+
+    # matching kps
+    commonPoints = doKDtree(myDesc, refDesc)
+
+    # printing kps that matched
+    for cp in commonPoints:
+        pKp = cp[0][0]
+        sKp = cp[0][1]
+        precision = cp[1]
+        y, x = sKp
+        y2, x2 = pKp
+        cv2.circle(myFinalImg, (x, y), 5, color('r'), thickness=-1)
+        cv2.circle(myFinalImgRef, (x2, y2), 5, color('r'), thickness=-1)
+    print_image(myFinalImg)
+    print_image(myFinalImgRef)
     # i == 0 => *2**2
     #      1 => *2**2
     #      2 => *2**2
@@ -246,12 +271,14 @@ def chooseImagePathRef():
     # TEST
     # imgPath = "../resources/ref_canette.jpg"
     imgPath = "../resources/ref_logo.jpg"
+    # imgPath = "../resources/pattern_google.png"
     return imgPath
 
 
 def chooseImagePath():
     # TEST
     imgPath = "../resources/ref_canette.jpg"
+    # imgPath = "../resources/src_google.png"
     # EASY
     # imgPath = "../resources/facile/20160524_163619.jpg"
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre

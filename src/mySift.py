@@ -105,22 +105,116 @@ def cleanKp(kps, octaves):
             kps[i][j] = findCorners(octaves[i][0], kpList)
 
 
+def flattenKps(kps):
+    res = []
+    for i in range(len(kps)):
+        for j in range(0, len(kps[i])):
+            for kp in kps[i][j]:
+                tmp = kp
+                tmp[0] = tmp[0] * 2 ** i
+                tmp[1] = tmp[1] * 2 ** i
+                res.append(tmp)
+    return res
+
+
 def doSift(img):
+    # source image
     octaves = getOctaves(img)
     diffOctaves = getDiffOctaves(octaves)
     kps = findKeyPoints(diffOctaves)
     print('Found the keypoints.')
     cleanKp(kps, octaves)
-    descriptors = getDescriptors(octaves, kps, )
-    return kps
+    flatKps = flattenKps(kps)
+    descriptors = getDescriptors(octaves, flatKps)
+    return descriptors, flatKps
 
+# def doSift(img, imgRef):
+#     # pattern image
+#     octavesRef = getOctaves(imgRef)
+#     diffOctavesRef = getDiffOctaves(octavesRef)
+#     kpsRef = findKeyPoints(diffOctavesRef)
+#     print('Found the keypoints.')
+#     cleanKp(kpsRef, octavesRef)
+#     # source image
+#     octaves = getOctaves(img)
+#     diffOctaves = getDiffOctaves(octaves)
+#     kps = findKeyPoints(diffOctaves)
+#     print('Found the keypoints.')
+#     cleanKp(kps, octaves)
+#     # descriptors
+#     descriptorsRef = getDescriptors(octavesRef, kpsRef)
+#     # descriptors
+#     descriptors = getDescriptors(octaves, kps)
+#     for i in range(len(descriptors)):
+#         for j in range(0, len(descriptors[i])):
+#             KDtree(descriptors[i][j], descriptorsRef[i][j])
+#     return kps
 
-def getDescriptors(octaves, kps):
-    res = [[[] for j in range(len(kps[i]))] for i in range(len(kps))]
-    for i in range(len(kps)):
-        for j in range(0, len(kps[i])):
-            res[i][j] = desc.descriptor().creatDes(kps[i][j], octaves[i][0])
-    return res
+def doKDtree(sDes, pDes):
+    tree = []
+    result = {}
+    # use cKD tree struture to compute the two similar pixels
+    tree = scipy.spatial.cKDTree(list(sDes.values()))
+    slocList = sDes.keys()
+    pDict = {}
+    sDict = {}
+    distanceThresh = 0.01
+    # distanceThresh = 0.00000000001
+    similarityThresh = 0.8
+    for p in pDes.keys():
+        x = pDes[p]
+        re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
+        if re[0][1] != 0 and re[0][0] / re[0][1] < similarityThresh:
+            pLoc = p
+            sLoc = list(slocList)[re[1][0]]
+            distance = re[0][0]
+            # did not been compared before
+            if not sLoc in sDict:
+                # add the result and compared pattern pixel
+                # and source pixel
+                result[(pLoc, sLoc)] = distance
+                pDict[pLoc] = sLoc
+                sDict[sLoc] = pLoc
+            elif distance < result.get((sDict[sLoc], sLoc)):
+                # updates the result and compared pattern pixel
+                # and source pixel
+                del result[(sDict[sLoc], sLoc)]
+                result[(pLoc, sLoc)] = distance
+                del pDict[sDict[sLoc]]
+                pDict[pLoc] = sLoc
+                sDict[sLoc] = pLoc
+        elif re[0][1] == 0:
+            pLoc = p
+            sLoc = list(slocList)[re[1][0]]
+            distance = re[0][0]
+            # did not been compared before
+            if not sLoc in sDict:
+                # add the result and compared pattern pixel
+                # and source pixel
+                result[(pLoc, sLoc)] = distance
+                pDict[pLoc] = sLoc
+                sDict[sLoc] = pLoc
+            elif distance < result.get((sDict[sLoc], sLoc)):
+                # updates the result and compared pattern pixel
+                # and source pixel
+                del result[(sDict[sLoc], sLoc)]
+                result[(pLoc, sLoc)] = distance
+                del pDict[sDict[sLoc]]
+                pDict[pLoc] = sLoc
+                sDict[sLoc] = pLoc
+
+    # the list of matched pixels, sorted by the distance
+    finResult = sorted(result.items(), reverse=False, key=lambda d: d[1])
+
+    # match1 = finResult[0][0]
+    # match2 = finResult[1][0]
+    # match3 = finResult[2][0]
+    print('Done')
+    #scalingFactor = scale.cal_factor(match1, match2, match3)
+    return finResult
+
+def getDescriptors(octaves, flatKps):
+    return desc.descriptor().creatDes(flatKps, octaves[0][0])
 
 
 def print_image(img):
