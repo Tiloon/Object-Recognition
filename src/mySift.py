@@ -67,16 +67,11 @@ def findCorners(img, kpList, thresh=-1, k=0.05):
     height = img.shape[0]
     width = img.shape[1]
     cornerList = []
-    # newImg = img.copy()
-    # color_img = cv2.cvtColor(newImg, cv2.COLOR_GRAY2RGB)
     offsetX, offsetY = width//20, height//20
     #Loop through image and find our corners
     print("Finding Corners...")
     for x, y in kpList:
-    # for y in range(offset, height-offset):
-    #     for x in range(offset, width-offset):
-            #Calculate sum of squares
-        if not (y-offsetY > 0 and y+offsetY+1 < height and x-offsetX > 0 and x+offsetX+1 < width):
+        if not (y-offsetY > 16 and y+offsetY+1 < width - 16 and x-offsetX > 16 and x+offsetX+1 < height - 16):
             continue
         windowIxx = Ixx[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
         windowIxy = Ixy[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
@@ -91,11 +86,7 @@ def findCorners(img, kpList, thresh=-1, k=0.05):
         #If corner response is over threshold, color the point and add to corner list
         if r > thresh: #TODO: fix thresh value!
             print(x, y, r)
-            # cornerList.append([x, y, r])
             cornerList.append([x, y])
-            # color_img.itemset((y, x, 0), 0)
-            # color_img.itemset((y, x, 1), 0)
-            # color_img.itemset((y, x, 2), 255)
     return cornerList
 
 def cleanKp(kps, octaves):
@@ -158,18 +149,18 @@ def doKDtree(sDes, pDes):
     slocList = sDes.keys()
     pDict = {}
     sDict = {}
-    distanceThresh = 0.01
-    # distanceThresh = 0.00000000001
-    similarityThresh = 0.8
+    distanceThresh = 0.00000000001
+    similarityThresh = 0.95
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
+        print('similarity: ', re[0][0] / re[0][1])
         if re[0][1] != 0 and re[0][0] / re[0][1] < similarityThresh:
             pLoc = p
             sLoc = list(slocList)[re[1][0]]
             distance = re[0][0]
-            # did not been compared before
-            if not sLoc in sDict:
+            # have not been compared before
+            if not (sLoc in sDict):
                 # add the result and compared pattern pixel
                 # and source pixel
                 result[(pLoc, sLoc)] = distance
@@ -188,7 +179,7 @@ def doKDtree(sDes, pDes):
             sLoc = list(slocList)[re[1][0]]
             distance = re[0][0]
             # did not been compared before
-            if not sLoc in sDict:
+            if not (sLoc in sDict):
                 # add the result and compared pattern pixel
                 # and source pixel
                 result[(pLoc, sLoc)] = distance

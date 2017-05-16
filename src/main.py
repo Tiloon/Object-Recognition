@@ -6,7 +6,7 @@ from mySift import doSift, doKDtree
 
 def main():
     nbResize = 1
-    circleSize = 5 // (nbResize * 2)
+    circleSize = 5 // (nbResize + 1)
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
 
@@ -51,9 +51,8 @@ def main():
         cv2.circle(myFinalImgRef, (x2, y2), 5, color('r'), thickness=-1)
     print_image(myFinalImg)
     print_image(myFinalImgRef)
-    # i == 0 => *2**2
-    #      1 => *2**2
-    #      2 => *2**2
+
+    myPrintKeyDiff(img, imgRef, commonPoints)
 
     # print_image(imgRef)
     # return
@@ -236,6 +235,25 @@ def rgb(r, g, b):
     return (b, g, r)
 
 
+def myPrintKeyDiff(img, imgRef, cps):
+    # nice print
+    h1, w1 = img.shape[:2]
+    h2, w2 = imgRef.shape[:2]
+    nWidth = w1 + w2
+    nHeight = max(h1, h2)
+    newimg = np.zeros((nHeight, nWidth, 3), np.uint8)
+    newimg[:h2, :w2] = imgRef
+    newimg[:h1, w2:w1 + w2] = img
+    for cp in cps:
+        pKp = cp[0][0]
+        sKp = cp[0][1]
+        y, x = sKp
+        y2, x2 = pKp
+        pt_a = (int(x2), int(y2))
+        pt_b = (int(x + w2), int(y))
+        cv2.line(newimg, pt_a, pt_b, (0, 0, 255))
+    print_image(newimg)
+
 def printKeyDiff(img, imgRef, skp_final, tkp):
     # nice print
     h1, w1 = img.shape[:2]
@@ -277,7 +295,10 @@ def chooseImagePathRef():
 
 def chooseImagePath():
     # TEST
-    imgPath = "../resources/ref_canette.jpg"
+    # imgPath = "../resources/ref_logo.jpg"
+    # imgPath = "../resources/ref_logo2.jpg"
+    # imgPath = "../resources/ref_logo_hor.jpg"
+    # imgPath = "../resources/ref_canette.jpg"
     # imgPath = "../resources/src_google.png"
     # EASY
     # imgPath = "../resources/facile/20160524_163619.jpg"
@@ -286,7 +307,7 @@ def chooseImagePath():
     # imgPath = "../resources/facile/20160525_145003.jpg"
     # QUASIFACILE
     # imgPath = "../resources/quasi_facile/20160506_125941.jpg" #DESSUS
-    # imgPath = "../resources/quasi_facile/20160525_143735.jpg" #DEVANT FENETRE
+    imgPath = "../resources/quasi_facile/20160525_143735.jpg" #DEVANT FENETRE
     # imgPath = "../resources/quasi_facile/20160525_144433.jpg" #DISTORSION
     # imgPath = "../resources/quasi_facile/20160506_130022.jpg" #FAIL
     # imgPath = "../resources/quasi_facile/20160525_143754.jpg"
