@@ -33,20 +33,18 @@ def isMaxMin(elt, neighbours):
     return 1
 
 def genMaxMin(img, down, up):
-    # res = np.zeros(img.shape)
     res = []
     for i in range(1, len(img) - 1):
-        # for j in np.nonzero(img[i])[0]:
         for j in range(1, len(img[i]) - 1):
             tmp = isMaxMin(img[i][j], [down[i - 1][j - 1], down[i][j - 1], down[i + 1][j - 1],
-                                             down[i - 1][j], down[i][j], down[i + 1][j],
-                                             down[i - 1][j + 1], down[i][j + 1], down[i + 1][j + 1],
-                                             img[i - 1][j - 1], img[i][j - 1], img[i + 1][j - 1],
-                                             img[i - 1][j], img[i + 1][j],
-                                             img[i - 1][j + 1], img[i][j + 1], img[i + 1][j + 1],
-                                             up[i - 1][j - 1], up[i][j - 1], up[i + 1][j - 1],
-                                             up[i - 1][j], up[i][j], up[i + 1][j],
-                                             up[i - 1][j + 1], up[i][j + 1], up[i + 1][j + 1]])
+                                       down[i - 1][j],     down[i][j],     down[i + 1][j],
+                                       down[i - 1][j + 1], down[i][j + 1], down[i + 1][j + 1],
+                                       img[i - 1][j - 1],  img[i][j - 1],  img[i + 1][j - 1],
+                                       img[i - 1][j],                      img[i + 1][j],
+                                       img[i - 1][j + 1],  img[i][j + 1],  img[i + 1][j + 1],
+                                       up[i - 1][j - 1],   up[i][j - 1],   up[i + 1][j - 1],
+                                       up[i - 1][j],       up[i][j],       up[i + 1][j],
+                                       up[i - 1][j + 1],   up[i][j + 1],   up[i + 1][j + 1]])
             if (tmp == 1):
                 res.append((i, j))
     return res
@@ -59,7 +57,7 @@ def findKeyPoints(diffOctaves):
     return res
 
 
-def findCorners(img, kpList, thresh=-1, k=0.05):
+def findCorners(img, kpList, thresh=0.0001, k=0.05):
     dy, dx = np.gradient(img)
     Ixx = dx**2
     Ixy = dy*dx
@@ -67,11 +65,12 @@ def findCorners(img, kpList, thresh=-1, k=0.05):
     height = img.shape[0]
     width = img.shape[1]
     cornerList = []
-    offsetX, offsetY = width//20, height//20
+    squareSize = 16
+    offsetX, offsetY = squareSize, squareSize
     #Loop through image and find our corners
     print("Finding Corners...")
     for x, y in kpList:
-        if not (y-offsetY > 16 and y+offsetY+1 < width - 16 and x-offsetX > 16 and x+offsetX+1 < height - 16):
+        if not (y > squareSize and y + 1 < width - squareSize and x > squareSize and x + 1 < height - squareSize):
             continue
         windowIxx = Ixx[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
         windowIxy = Ixy[y-offsetY:y+offsetY+1, x-offsetX:x+offsetX+1]
@@ -83,8 +82,9 @@ def findCorners(img, kpList, thresh=-1, k=0.05):
         det = (Sxx * Syy) - (Sxy**2)
         trace = Sxx + Syy
         r = det - k*(trace**2)
+        r = 2 * det / (trace + 10**-3)
         #If corner response is over threshold, color the point and add to corner list
-        if r > thresh: #TODO: fix thresh value!
+        if 1: #TODO: fix thresh value!
             print(x, y, r)
             cornerList.append([x, y])
     return cornerList
@@ -150,7 +150,7 @@ def doKDtree(sDes, pDes):
     pDict = {}
     sDict = {}
     distanceThresh = 0.00000000001
-    similarityThresh = 0.95
+    similarityThresh = 0.95 #TODO: fix the similarity Threshold
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
@@ -221,9 +221,7 @@ def getOctaves(img, nbOctaves=4, nbBlur=5, sig=1.6):
     for x in range(nbOctaves):
         for y in range(nbBlur):
             pass
-            # tmpImg2 = cv2.blur(tmpImg2, (5, 5))
             res[x][y] = scipy.ndimage.filters.gaussian_filter(tmpImg, sig ** (y + 1))
-            # print_image(res[x][y])
         tmpImg = cv2.resize(tmpImg, dsize=(0, 0), fx=0.5, fy=0.5)
     return res
 
