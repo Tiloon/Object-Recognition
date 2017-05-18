@@ -5,7 +5,7 @@ from mySift import doSift, doKDtree
 
 
 def main():
-    nbResize = 1
+    nbResize = 0
     circleSize = 5 // (nbResize + 1)
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
@@ -14,7 +14,8 @@ def main():
     for i in range(nbResize):
         img = cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
     myImg = img.copy()
-    imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)
+    # imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)  # PASSER EN NIVEAU DE VERT ?
+    imgGray = myImg[:, :, 1]
     myDesc, myKps = doSift(imgGray)
 
     imgRef = cv2.imread(imgPathRef, 1)
@@ -22,7 +23,8 @@ def main():
         imgRef = cv2.resize(imgRef, dsize=(0, 0), fx=0.5, fy=0.5)
     myImgRef = imgRef.copy()
     nbResize = 0
-    imgGrayRef = cv2.cvtColor(myImgRef, cv2.COLOR_BGR2GRAY)
+    # imgGrayRef = cv2.cvtColor(myImgRef, cv2.COLOR_BGR2GRAY)
+    imgGrayRef = myImgRef[:, :, 1]
     refDesc, refKps = doSift(imgGrayRef)
 
     # Adding kps to images in color light blue
@@ -118,6 +120,7 @@ def main():
     # res = cv2.bitwise_and(myMask, myMask, mask=myMaskEr)
     # print_image(res)
 
+
 # def saveRef():
 #     imgRefPath = chooseImagePathRef()
 #     imgRef = cv2.imread(imgRefPath, 1)
@@ -179,7 +182,8 @@ def findBox(img, skp_final):
     print_image(img3)
 
     if len(skp_final_proper) > 0:
-        maxX, maxY, minX, minY = skp_final_proper[0].pt[0], skp_final_proper[0].pt[1], skp_final_proper[0].pt[0], skp_final_proper[0].pt[1]
+        maxX, maxY, minX, minY = skp_final_proper[0].pt[0], skp_final_proper[0].pt[1], skp_final_proper[0].pt[0], \
+                                 skp_final_proper[0].pt[1]
         for kp in skp_final_proper:
             maxX = max(maxX, kp.pt[0])
             maxY = max(maxY, kp.pt[1])
@@ -190,24 +194,16 @@ def findBox(img, skp_final):
 
         w, h = maxX - minX, maxY - minY
 
-
-
         if h > w:
             print("swaping")
             maxX, minX, maxY, minY = maxY, minY, maxX, minX
             w, h = maxX - minX, maxY - minY
 
-
         maxX, minX = maxX + w, minX - w
         maxY, minY = maxY + 5 * h, minY - 2 * h
 
-
-
         cv2.rectangle(img3, (int(maxX), int(maxY)), (int(minX), int(minY)), color('r'), thickness=5)
         print_image(img3)
-
-
-
 
 
 def findCenter(skp_final):
@@ -220,7 +216,7 @@ def findCenter(skp_final):
 
 
 def color(code):
-    if code == "r": # or code == "red":
+    if code == "r":  # or code == "red":
         return rgb(196, 47, 39)
     if code == "o":
         return rgb(232, 121, 2)
@@ -253,6 +249,7 @@ def myPrintKeyDiff(img, imgRef, cps):
         pt_b = (int(x + w2), int(y))
         cv2.line(newimg, pt_a, pt_b, (0, 0, 255))
     print_image(newimg)
+
 
 def printKeyDiff(img, imgRef, skp_final, tkp):
     # nice print
@@ -306,10 +303,10 @@ def chooseImagePath():
     # imgPath = "../resources/facile/20160524_163619.jpg"
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre
     # imgPath = "../resources/facile/20160525_144343.jpg" # 90°
-    imgPath = "../resources/facile/20160525_145003.jpg"
+    # imgPath = "../resources/facile/20160525_145003.jpg"
     # QUASIFACILE
     # imgPath = "../resources/quasi_facile/20160506_125941.jpg" #DESSUS
-    # imgPath = "../resources/quasi_facile/20160525_143735.jpg" #DEVANT FENETRE #FAIL
+    imgPath = "../resources/quasi_facile/20160525_143735.jpg"  # DEVANT FENETRE # HARD
     # imgPath = "../resources/quasi_facile/20160525_144433.jpg" #DISTORSION
     # imgPath = "../resources/quasi_facile/20160506_130022.jpg" #FAIL
     # imgPath = "../resources/quasi_facile/20160525_143754.jpg"
@@ -327,6 +324,7 @@ def chooseImagePath():
     # imgPath = "../resources/quasi_facile/20160525_144422.jpg" # HARD
     # imgPath = "../resources/quasi_facile/photo_mm.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191210.jpg" #GREEN
+    # imgPath = "../resources/green.jpg" #GREEN
     # imgPath = "../resources/quasi_facile/20160525_144427.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191304.jpg"
     # imgPath = "../resources/quasi_facile/20160525_144430.jpg"

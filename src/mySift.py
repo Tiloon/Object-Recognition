@@ -150,7 +150,7 @@ def doKDtree(sDes, pDes):
     pDict = {}
     sDict = {}
     distanceThresh = 0.00000000001
-    similarityThresh = 0.95 #TODO: fix the similarity Threshold
+    similarityThresh = 0.90 #TODO: fix the similarity Threshold
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
