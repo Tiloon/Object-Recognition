@@ -1,14 +1,15 @@
 import cv2
 import numpy as np
 
-from mySift import doSift, doKDtree
+from mySift import doSift
 from file_picker import *
 
 from src.color import color
+from src.kdTree import doKDtree
 
 
 def main():
-    nbResize = 3
+    nbResize = 1
     circleSize = 5 // (nbResize + 1)
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()

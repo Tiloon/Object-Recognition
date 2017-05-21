@@ -1,3 +1,7 @@
+import numpy as np
+import scipy
+
+
 def doKDtree(sDes, pDes, distanceThresh=0.00000000001, similarityThresh=0.90):
     tree = []
     result = {}

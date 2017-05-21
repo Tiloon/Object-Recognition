@@ -35,10 +35,10 @@ def findCorners(img, kpList, thresh=10000, k=0.05, window_size=5):
         # If corner response is over threshold, color the point and add to corner list
         if r > thresh:  # TODO: fix thresh value not used!
             print('Corner!', x, y, r)
-            cornerList.append([x, y])
+            cornerList.append([y, x])
             cv2.circle(img2, (x, y), 3, color('g'), thickness=-1)
         else:
             print('Not corner :(', x, y, r)
             cv2.circle(img2, (x, y), 3, color('r'), thickness=-1)
-    print_image(img2)
+    # print_image(img2)
     return cornerList

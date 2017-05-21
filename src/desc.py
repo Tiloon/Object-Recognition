@@ -8,6 +8,7 @@ import math
 class descriptor(object):
     def __init__(self):
         self.eps = 0.00001
+        self.sq_size = 8
 
     def creatDes(self, features, imarr):
         desDict = {}
@@ -15,7 +16,10 @@ class descriptor(object):
         desNum = len(features)
 
         for i in range(desNum):
-            desDict[(features[i][0], features[i][1])] = self.allocate(features[i][0], features[i][1], arr)
+            x, y = features[i][0], features[i][1]
+            if x > self.sq_size and x < arr.shape[0] - 2 * self.sq_size and \
+                            y > self.sq_size and y < arr.shape[1] - 2 * self.sq_size:
+                desDict[(x,y)] = self.allocate(x,y, arr)
         return desDict
 
 
@@ -23,6 +27,7 @@ class descriptor(object):
         """
         computes each pixel's gradient magnitude and orientation
         """
+
         mij = math.sqrt((imarr[i + 1, j] - imarr[i - 1, j]) ** 2
                         + (imarr[i, j + 1] - imarr[i, j - 1]) ** 2)
         theta = math.atan((imarr[i, j + 1] - imarr[i, j - 1])
