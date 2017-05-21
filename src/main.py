@@ -9,7 +9,7 @@ from src.kdTree import doKDtree
 
 
 def main():
-    nbResize = 0
+    nbResize = 1
     circleSize = 5 // (nbResize + 1)
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()

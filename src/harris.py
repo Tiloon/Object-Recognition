@@ -3,8 +3,8 @@ import numpy as np
 
 from src.color import color, print_image
 
-
-def findCorners(img, kpList, thresh=10000, k=0.05, window_size=5):
+# r_opti (11**2)/10
+def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5):
     dy, dx = np.gradient(img)
     Ixx = dx ** 2
     Ixy = dy * dx
@@ -31,10 +31,12 @@ def findCorners(img, kpList, thresh=10000, k=0.05, window_size=5):
         det = (Sxx * Syy) - (Sxy ** 2)
         trace = Sxx + Syy
         r = det - k * (trace ** 2)
-        # r = 2 * det / (trace + 10 ** -3)
         # If corner response is over threshold, color the point and add to corner list
+
+        # r = (trace ** 2) / (det + 10 ** -3)
+        # if r > opti_r:
         if r > thresh:
-            print('Corner!', x, y, r)
+            print('Corner!', x, y, r, opti_r)
             cornerList.append([y, x])
             cv2.circle(img2, (x, y), 3, color('g'), thickness=-1)
         else:
