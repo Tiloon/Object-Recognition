@@ -1,11 +1,13 @@
 import os
 import pickle
 
+VERSION = 3
 
 class payloadKps:
     def __init__(self, myDesc, myKps):
         self.myDesc = myDesc
         self.myKps = myKps
+        self.version = VERSION
 
 
 def buildPicklePath(path):
@@ -21,4 +23,8 @@ def loadPickle(path):
         return p.myDesc, p.myKps
 
 def pickleExist(path):
-    return os.path.isfile(buildPicklePath(path))
+    if os.path.isfile(buildPicklePath(path)):
+        with open(buildPicklePath(path), 'rb') as f:
+            p = pickle.load(f)
+            return p.version == VERSION
+    return False

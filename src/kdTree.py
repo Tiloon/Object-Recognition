@@ -6,11 +6,13 @@ def doKDtree(sDes, pDes, distanceThresh=0.00000000001, similarityThresh=0.90):
     tree = []
     result = {}
     # use cKD tree struture to compute the two similar pixels
+    print('start kd')
+
     tree = scipy.spatial.cKDTree(list(sDes.values()))
     slocList = sDes.keys()
     pDict = {}
     sDict = {}
-    print('start kd')
+    print('step 2 kd')
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)

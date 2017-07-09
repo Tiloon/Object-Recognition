@@ -4,37 +4,45 @@ import numpy as np
 from mySift import doSift
 from file_picker import chooseImagePath, chooseImagePathRef
 
+from src.boxBuilder import Point, findBaseBox
 from src.color import color
 from src.kdTree import doKDtree
 from src.payloadKps import *
 
 
 def main():
-    nbResize = 2
+    nbResize = 0
     circleSize = 5 // (nbResize + 1)
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
 
-    img, myDesc, myKps, myFinalImg = compute_or_fecth_pickle(imgPath, nbResize=nbResize, circleSize=circleSize)
-    imgRef, refDesc, refKps, myFinalImgRef = compute_or_fecth_pickle(imgPathRef)
+    img, myDesc, myKps, myFinalImg = compute_or_fecth_pickle(imgPath, nbResize=nbResize, circleSize=circleSize, printImg=False)
+    imgRef, refDesc, refKps, myFinalImgRef = compute_or_fecth_pickle(imgPathRef, printImg=False)
 
 
     # matching kps
-    commonPoints = doKDtree(myDesc, refDesc)
+    # commonPoints = doKDtree(myDesc, refDesc)
+    commonPoints = doKDtree(refDesc, myDesc)
     print('match', len(commonPoints), 'on', len(refDesc), 'proportion', len(commonPoints) / len(refDesc))
 
     # printing kps that matched
+    refKps, imgKps = [], []
     for cp in commonPoints:
         sKp = cp[0][1]
         pKp = cp[0][0]
         precision = cp[1]  # TODO: can this precision be useful?
         # print(precision)
         y, x = sKp
+        imgKps.append(Point(x, y))
         y2, x2 = pKp
-        cv2.circle(myFinalImg, (x, y), 5, color('r'), thickness=-1)
-        cv2.circle(myFinalImgRef, (x2, y2), 5, color('r'), thickness=-1)
+        refKps.append(Point(x2, y2))
 
-    myPrintKeyDiff(img, imgRef, commonPoints)
+        cv2.circle(myFinalImg, (x, y), 5, color('g'), thickness=-1)
+        cv2.circle(myFinalImgRef, (x2, y2), 5, color('g'), thickness=-1)
+
+
+
+    myPrintKeyDiff(img, imgRef, imgKps, refKps)
 
     # tryOCVSift(img, imgRef, myFinalImg)
     return
@@ -51,23 +59,20 @@ def tryOCVSift(img, imgRef, myFinalImg):
     print_image(myFinalImg)
 
 
-def myPrintKeyDiff(img, imgRef, cps):
+def myPrintKeyDiff(imgL, imgR, imgLKps,imgRKps):
     # nice print
-    h1, w1 = img.shape[:2]
-    h2, w2 = imgRef.shape[:2]
-    nWidth = w1 + w2
-    nHeight = max(h1, h2)
-    newimg = np.zeros((nHeight, nWidth, 3), np.uint8)
-    newimg[:h2, :w2] = imgRef
-    newimg[:h1, w2:w1 + w2] = img
-    for cp in cps:
-        pKp = cp[0][0]
-        sKp = cp[0][1]
-        y, x = sKp
-        y2, x2 = pKp
-        pt_a = (int(x2), int(y2))
-        pt_b = (int(x + w2), int(y))
-        cv2.line(newimg, pt_a, pt_b, (0, 0, 255))
+    hL, wL = imgL.shape[:2]
+    hR, wR = imgR.shape[:2]
+    newimg = np.zeros((max(hL, hR), wL + wR, 3), np.uint8)
+    newimg[:hL, :wL] = imgL
+    newimg[:hR, wL:wR + wL] = imgR
+    for LKp, RKp in zip(imgLKps, imgRKps):
+        x, y = LKp.toTuple()
+        x2, y2 = RKp.toTuple()
+        pt_imgL = (int(x2), int(y2))
+        pt_imgR = (int(x + wL), int(y))
+        cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255))
+    # b1, b2 = findBaseBox()
     print_image(newimg)
 
 
