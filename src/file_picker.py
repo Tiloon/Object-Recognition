@@ -18,10 +18,10 @@ def chooseImagePath():
     # imgPath = "../resources/test_rectangle.png"
     # imgPath = "../resources/lonely_square.png"
     # EASY
-    # imgPath = "../resources/facile/20160524_163619.jpg"  # normal devant mur
+    imgPath = "../resources/facile/20160524_163619.jpg"  # normal devant mur
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre
     # imgPath = "../resources/facile/20160525_144343.jpg"  # chemise bleu 90°
-    imgPath = "../resources/facile/20160525_145003.jpg" # grille
+    # imgPath = "../resources/facile/20160525_145003.jpg" # grille
     # QUASIFACILE
     # imgPath = "../resources/quasi_facile/20160506_125941.jpg" #DESSUS
     # imgPath = "../resources/quasi_facile/20160525_143735.jpg"  # DEVANT FENETRE # HARD

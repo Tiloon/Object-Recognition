@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-from mySift import doSift
-from file_picker import chooseImagePath, chooseImagePathRef
+from src.mySift import doSift
+from src.file_picker import chooseImagePath, chooseImagePathRef
 
-from src.boxBuilder import Point, findBaseBox
+from src.boxBuilder import *
 from src.color import color
 from src.kdTree import doKDtree
 from src.payloadKps import *
@@ -33,9 +33,9 @@ def main():
         precision = cp[1]  # TODO: can this precision be useful?
         # print(precision)
         y, x = sKp
-        imgKps.append(Point(x, y))
         y2, x2 = pKp
-        refKps.append(Point(x2, y2))
+        imgKps.append(Point(x2, y2))
+        refKps.append(Point(x, y))
 
         cv2.circle(myFinalImg, (x, y), 5, color('g'), thickness=-1)
         cv2.circle(myFinalImgRef, (x2, y2), 5, color('g'), thickness=-1)
@@ -59,7 +59,7 @@ def tryOCVSift(img, imgRef, myFinalImg):
     print_image(myFinalImg)
 
 
-def myPrintKeyDiff(imgL, imgR, imgLKps,imgRKps):
+def myPrintKeyDiff(imgL, imgR, imgLKps, imgRKps):
     # nice print
     hL, wL = imgL.shape[:2]
     hR, wR = imgR.shape[:2]
@@ -67,13 +67,26 @@ def myPrintKeyDiff(imgL, imgR, imgLKps,imgRKps):
     newimg[:hL, :wL] = imgL
     newimg[:hR, wL:wR + wL] = imgR
     for LKp, RKp in zip(imgLKps, imgRKps):
-        x, y = LKp.toTuple()
-        x2, y2 = RKp.toTuple()
+        x, y = RKp.toTuple()
+        x2, y2 = LKp.toTuple()
         pt_imgL = (int(x2), int(y2))
         pt_imgR = (int(x + wL), int(y))
         cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255))
-    # b1, b2 = findBaseBox()
+
+
+    (x, y), (x2, y2) = findBaseBox(imgRKps, tuple=True)
+    cv2.rectangle(newimg, (x + wL, y), (x2 + wL, y2), (0, 255, 0), thickness=15)
+
+    sc = scale(imgLKps, imgRKps)
+    p1, p2 = findBaseBox(imgRKps)
+    print(p1.toTuple(), p2.toTuple())
+    print(p1.scale(sc).toTuple(), p2.scale(sc).toTuple())
+    cv2.rectangle(newimg, p1.scale(sc).toTuple(), p2.scale(sc).toTuple(), (0, 255, 0), thickness=15)
+
     print_image(newimg)
+
+
+
 
 
 def compute_or_fecth_pickle(imgPath, nbResize=0, printImg=True, circleSize=5):
@@ -102,6 +115,9 @@ def compute_or_fecth_pickle(imgPath, nbResize=0, printImg=True, circleSize=5):
         print_image(myFinalImg)
 
     return img, myDesc, myKps, myFinalImg
+
+
+
 
 
 def print_image(img):
