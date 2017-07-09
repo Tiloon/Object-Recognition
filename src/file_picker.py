@@ -18,7 +18,7 @@ def chooseImagePath():
     # imgPath = "../resources/test_rectangle.png"
     # imgPath = "../resources/lonely_square.png"
     # EASY
-    imgPath = "../resources/facile/20160524_163619.jpg"  # normal devant mur
+    # imgPath = "../resources/facile/20160524_163619.jpg"  # normal devant mur
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre
     # imgPath = "../resources/facile/20160525_144343.jpg"  # chemise bleu 90°
     # imgPath = "../resources/facile/20160525_145003.jpg" # grille
@@ -45,6 +45,35 @@ def chooseImagePath():
     # imgPath = "../resources/green.jpg" #GREEN
     # imgPath = "../resources/quasi_facile/20160525_144427.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191304.jpg"
-    # imgPath = "../resources/quasi_facile/20160525_144430.jpg"
+    imgPath = "../resources/quasi_facile/20160525_144430.jpg"
     print(imgPath)
     return imgPath
+
+def listOfPaths():
+    return ["../resources/facile/20160524_163619.jpg",  # normal devant mur
+    "../resources/facile/20160525_145003.jpg", # grille
+    "../resources/facile/20160525_144343.jpg",  # chemise bleu 90°
+    "../resources/facile/20160525_143739.jpg", # normal devant fenetre
+    "../resources/quasi_facile/20160506_125941.jpg", #DESSUS
+    "../resources/quasi_facile/20160525_143735.jpg",  # DEVANT FENETRE # HARD
+    "../resources/quasi_facile/20160525_144433.jpg", #DISTORSION
+    "../resources/quasi_facile/20160506_130022.jpg", #FAIL
+    "../resources/quasi_facile/20160525_143754.jpg",
+    "../resources/quasi_facile/20160525_144511.jpg",
+    "../resources/quasi_facile/20160515_165208.jpg", #FAIL
+    "../resources/quasi_facile/20160525_144248.jpg", #BOULE ANTISTRESS
+    "../resources/quasi_facile/20160525_144527.jpg", #OMBRE
+    "../resources/quasi_facile/20160515_165214.jpg", #FAIL
+    "../resources/quasi_facile/20160525_144412.jpg", #NATURE
+    "../resources/quasi_facile/20160525_144533.jpg",
+    "../resources/quasi_facile/20160523_190950.jpg", #CLOSET BIG
+    "../resources/quasi_facile/20160525_144416.jpg",
+    "../resources/quasi_facile/20160525_145157.jpg",
+    "../resources/quasi_facile/20160523_191142.jpg",
+    "../resources/quasi_facile/20160525_144422.jpg", # HARD
+    "../resources/quasi_facile/photo_mm.jpg",
+    "../resources/quasi_facile/20160523_191210.jpg", #GREEN
+    "../resources/green.jpg", #GREEN
+    "../resources/quasi_facile/20160525_144427.jpg",
+    "../resources/quasi_facile/20160523_191304.jpg",
+    "../resources/quasi_facile/20160525_144430.jpg"]

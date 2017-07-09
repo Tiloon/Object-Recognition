@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from src.mySift import doSift
-from src.file_picker import chooseImagePath, chooseImagePathRef
+from src.file_picker import chooseImagePath, chooseImagePathRef, listOfPaths
 
 from src.boxBuilder import *
 from src.color import color
@@ -16,12 +16,18 @@ def main():
     imgPath = chooseImagePath()
     imgPathRef = chooseImagePathRef()
 
+    # for imgPath in listOfPaths():
+    #     try:
+    #         print('>>>>>>>>>>>>>>>', imgPath)
+    #         img, myDesc, myKps, myFinalImg = compute_or_fecth_pickle(imgPath, nbResize=nbResize, circleSize=circleSize, printImg=False)
+    #     except:
+    #         continue
+
+    print('>>>>>>>> Start Computing key-points for tested Image')
     img, myDesc, myKps, myFinalImg = compute_or_fecth_pickle(imgPath, nbResize=nbResize, circleSize=circleSize, printImg=False)
+    print('>>>>>>>> Start Computing key-points for ref Image')
     imgRef, refDesc, refKps, myFinalImgRef = compute_or_fecth_pickle(imgPathRef, printImg=False)
 
-
-    # matching kps
-    # commonPoints = doKDtree(myDesc, refDesc)
     commonPoints = doKDtree(refDesc, myDesc)
     print('match', len(commonPoints), 'on', len(refDesc), 'proportion', len(commonPoints) / len(refDesc))
 
@@ -30,8 +36,7 @@ def main():
     for cp in commonPoints:
         sKp = cp[0][1]
         pKp = cp[0][0]
-        precision = cp[1]  # TODO: can this precision be useful?
-        # print(precision)
+
         y, x = sKp
         y2, x2 = pKp
         imgKps.append(Point(x2, y2))
@@ -94,7 +99,6 @@ def compute_or_fecth_pickle(imgPath, nbResize=0, printImg=True, circleSize=5):
     for i in range(nbResize):
         img = cv2.resize(img, dsize=(0, 0), fx=0.5, fy=0.5)
     myImg = img.copy()
-    # imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)  # PASSER EN NIVEAU DE VERT ?
     imgGray = myImg[:, :, 1]
 
     myDesc, myKps = None, None

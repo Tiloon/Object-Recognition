@@ -13,7 +13,6 @@ def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, prin
     width = img.shape[1]
     cornerList = []
     offsetX, offsetY = window_size, window_size
-    img2 = img.copy()
     img2 = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     # Loop through image and find our corners
     print("Finding Corners...")
@@ -33,8 +32,6 @@ def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, prin
         r = det - k * (trace ** 2)
         # If corner response is over threshold, color the point and add to corner list
 
-        # r = (trace ** 2) / (det + 10 ** -3)
-        # if r > opti_r:
         if r > thresh:
             # print('Corner!', x, y, r, opti_r)
             cornerList.append([y, x])
