@@ -6,6 +6,7 @@ from file_picker import chooseImagePath, chooseImagePathRef
 
 from src.color import color
 from src.kdTree import doKDtree
+from src.payloadKps import *
 
 
 def main():
@@ -77,7 +78,16 @@ def compute_or_fecth_pickle(imgPath, nbResize=0, printImg=True, circleSize=5):
     myImg = img.copy()
     # imgGray = cv2.cvtColor(myImg, cv2.COLOR_BGR2GRAY)  # PASSER EN NIVEAU DE VERT ?
     imgGray = myImg[:, :, 1]
-    myDesc, myKps = doSift(imgGray)
+
+    myDesc, myKps = None, None
+    if pickleExist(imgPath):
+        print("Using pre-computed key-points")
+        myDesc, myKps = loadPickle(imgPath)
+    else:
+        print("No precomputed key-points. Start computing key-points")
+        myDesc, myKps = doSift(imgGray)
+        savePickle(payloadKps(myDesc, myKps), imgPath)
+
     myFinalImg = img.copy()
 
     if printImg:
