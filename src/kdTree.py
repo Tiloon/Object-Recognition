@@ -10,46 +10,18 @@ def doKDtree(sDes, pDes, distanceThresh=0.00000000001, similarityThresh=0.90):
     slocList = sDes.keys()
     pDict = {}
     sDict = {}
+    print('start kd')
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
         # print('similarity: ', re[0][0] / re[0][1])
-        if re[0][1] != 0 and re[0][0] / re[0][1] < similarityThresh:
+        if (re[0][1] != 0 and re[0][0] / re[0][1] < similarityThresh) or re[0][1] == 0:
             pLoc = p
             sLoc = list(slocList)[re[1][0]]
             distance = re[0][0]
-            # have not been compared before
-            if not (sLoc in sDict):
-                # add the result and compared pattern pixel
-                # and source pixel
+            if not (sLoc in sDict) or distance < result.get((sDict[sLoc], sLoc)):
+                # We found a match, or a better one!
                 result[(pLoc, sLoc)] = distance
-                pDict[pLoc] = sLoc
-                sDict[sLoc] = pLoc
-            elif distance < result.get((sDict[sLoc], sLoc)):
-                # updates the result and compared pattern pixel
-                # and source pixel
-                del result[(sDict[sLoc], sLoc)]
-                result[(pLoc, sLoc)] = distance
-                del pDict[sDict[sLoc]]
-                pDict[pLoc] = sLoc
-                sDict[sLoc] = pLoc
-        elif re[0][1] == 0:
-            pLoc = p
-            sLoc = list(slocList)[re[1][0]]
-            distance = re[0][0]
-            # did not been compared before
-            if not (sLoc in sDict):
-                # add the result and compared pattern pixel
-                # and source pixel
-                result[(pLoc, sLoc)] = distance
-                pDict[pLoc] = sLoc
-                sDict[sLoc] = pLoc
-            elif distance < result.get((sDict[sLoc], sLoc)):
-                # updates the result and compared pattern pixel
-                # and source pixel
-                del result[(sDict[sLoc], sLoc)]
-                result[(pLoc, sLoc)] = distance
-                del pDict[sDict[sLoc]]
                 pDict[pLoc] = sLoc
                 sDict[sLoc] = pLoc
 
@@ -59,6 +31,6 @@ def doKDtree(sDes, pDes, distanceThresh=0.00000000001, similarityThresh=0.90):
     # match1 = finResult[0][0]
     # match2 = finResult[1][0]
     # match3 = finResult[2][0]
-    print('Done')
+    print('KD Tree comparaison is Done')
     # scalingFactor = scale.cal_factor(match1, match2, match3)
     return finResult
