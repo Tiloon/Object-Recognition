@@ -13,7 +13,7 @@ def doKDtree(sDes, pDes, distanceThresh=0.00000000001, similarityThresh=0.90):
     for p in pDes.keys():
         x = pDes[p]
         re = tree.query(x, k=2, eps=distanceThresh, p=2, distance_upper_bound=np.inf)
-        print('similarity: ', re[0][0] / re[0][1])
+        # print('similarity: ', re[0][0] / re[0][1])
         if re[0][1] != 0 and re[0][0] / re[0][1] < similarityThresh:
             pLoc = p
             sLoc = list(slocList)[re[1][0]]

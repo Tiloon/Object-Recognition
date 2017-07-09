@@ -4,7 +4,7 @@ import numpy as np
 from src.color import color, print_image
 
 # r_opti (11**2)/10
-def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5):
+def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, printCorner=False):
     dy, dx = np.gradient(img)
     Ixx = dx ** 2
     Ixy = dy * dx
@@ -36,11 +36,12 @@ def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5):
         # r = (trace ** 2) / (det + 10 ** -3)
         # if r > opti_r:
         if r > thresh:
-            print('Corner!', x, y, r, opti_r)
+            # print('Corner!', x, y, r, opti_r)
             cornerList.append([y, x])
             cv2.circle(img2, (x, y), 3, color('g'), thickness=-1)
         else:
-            print('Not corner :(', x, y, r)
+            # print('Not corner :(', x, y, r)
             cv2.circle(img2, (x, y), 3, color('r'), thickness=-1)
-    print_image(img2)
+    if printCorner:
+        print_image(img2)
     return cornerList
