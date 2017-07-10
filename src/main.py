@@ -72,22 +72,29 @@ def myPrintKeyDiff(imgL, imgR, imgLKps, imgRKps):
     newimg = np.zeros((max(hL, hR), wL + wR, 3), np.uint8)
     newimg[:hL, :wL] = imgL
     newimg[:hR, wL:wR + wL] = imgR
-    imgLKps, imgRKps = cvCenter(imgLKps, imgRKps)
+    print('Start cleaning isolated key-point matches')
+    p1, p2 = findBaseBox(imgRKps)
+
+    imgLKps, imgRKps, center = cvCenter(imgLKps, imgRKps)
+    # if len(imgLKps) < 15:
+    #     print(">> No match found")
+
     for LKp, RKp in zip(imgLKps, imgRKps):
         x, y = RKp.toTuple()
         x2, y2 = LKp.toTuple()
         pt_imgL = (int(x2), int(y2))
         pt_imgR = (int(x + wL), int(y))
-        cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255,100), thickness=1)
+        cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255, 100), thickness=1)
 
     (x, y), (x2, y2) = findBaseBox(imgRKps, tuple=True)
     cv2.rectangle(newimg, (x + wL, y), (x2 + wL, y2), (0, 255, 0), thickness=15)
 
     sc = scale(imgLKps, imgRKps)
-    p1, p2 = findBaseBox(imgRKps)
-    # print(p1.toTuple(), p2.toTuple())
-    # print(p1.scale(sc).toTuple(), p2.scale(sc).toTuple())
-    # cv2.rectangle(newimg, p1.scale(sc).toTuple(), p2.scale(sc).toTuple(), (0, 255, 0), thickness=15)
+    # rotation(imgLKps, imgRKps)
+    p1, p2 = p1.scale(sc), p2.scale(sc)
+    wBox, hBox = boxSize(p1, p2)
+    p1, p2 = center.add(-wBox // 2, -hBox // 2), center.add(wBox // 2, hBox // 2)
+    cv2.rectangle(newimg, p1.toTuple(), p2.toTuple(), (0, 255, 0), thickness=15)
 
     print_image(newimg)
 
