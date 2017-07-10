@@ -1,42 +1,36 @@
-from PIL import Image
-import scipy
 import numpy
-import scipy.ndimage
 import math
 
 
-class descriptor(object):
+class descriptor:
     def __init__(self):
+        self.size_sub_squares = 8
         self.eps = 0.00001
-        self.sq_size = 8
 
-    def creatDes(self, features, imarr):
-        desDict = {}
+    def create_descriptors(self, features, imarr):
+        descriptors = {}
         arr = imarr.astype(numpy.float64)
         desNum = len(features)
 
         for i in range(desNum):
             x, y = features[i][0], features[i][1]
-            if x > self.sq_size and x < arr.shape[0] - 2 * self.sq_size and \
-                            y > self.sq_size and y < arr.shape[1] - 2 * self.sq_size:
-                desDict[(x,y)] = self.allocate(x,y, arr)
-        return desDict
+            w, h = arr.shape[0], arr.shape[1]
+            if x > self.size_sub_squares and x < w - 2 * self.size_sub_squares and \
+                            y > self.size_sub_squares and y < h - 2 * self.size_sub_squares:
+                descriptors[(x, y)] = self.create_descriptor(x, y, arr)
+        return descriptors
 
 
-    def direction(self, i, j, imarr):
-        """
-        computes each pixel's gradient magnitude and orientation
-        """
-
-        mij = math.sqrt((imarr[i + 1, j] - imarr[i - 1, j]) ** 2
+    def gradient_properties(self, i, j, imarr):
+        norm = math.sqrt((imarr[i + 1, j] - imarr[i - 1, j]) ** 2
                         + (imarr[i, j + 1] - imarr[i, j - 1]) ** 2)
-        theta = math.atan((imarr[i, j + 1] - imarr[i, j - 1])
+        orientation = math.atan((imarr[i, j + 1] - imarr[i, j - 1])
                           / (imarr[i + 1, j] - imarr[i - 1, j] + self.eps))
 
-        return mij, theta
+        return norm, orientation
 
 
-    def allocate(self, i, j, imarr):
+    def create_descriptor(self, i, j, imarr):
         """
         computes the 16 local area's gradient magnitude and 
         orientation around the current pixel,
@@ -73,45 +67,68 @@ class descriptor(object):
         """
         P = math.pi
         localDir = [0] * 18
+        localDir2 = [0] * 18
+
 
         for b in range(i - 8, i):
             for c in range(j - 8, j):
-                m, t = self.direction(b, c, imarr)
-                if t >= P * -9 / 18 and t <= P * -8 / 18:
-                    localDir[0] += m
-                if t > P * -8 / 18 and t <= P * -7 / 18:
-                    localDir[1] += m
-                if t > P * -7 / 18 and t <= P * -6 / 18:
-                    localDir[2] += m
-                if t > P * -6 / 18 and t <= P * -5 / 18:
-                    localDir[3] += m
-                if t > P * -5 / 18 and t <= P * -4 / 18:
-                    localDir[4] += m
-                if t > P * -4 / 18 and t <= P * -3 / 18:
-                    localDir[5] += m
-                if t > P * -3 / 18 and t <= P * -2 / 18:
-                    localDir[6] += m
-                if t > P * -2 / 18 and t <= P * -1 / 18:
-                    localDir[7] += m
-                if t > P * -1 / 18 and t <= 0:
-                    localDir[8] += m
-                if t > 0 and t <= P * 1 / 18:
-                    localDir[9] += m
-                if t > P * 1 / 18 and t <= P * 2 / 18:
-                    localDir[10] += m
-                if t > P * 2 / 18 and t <= P * 3 / 18:
-                    localDir[11] += m
-                if t > P * 3 / 18 and t <= P * 4 / 18:
-                    localDir[12] += m
-                if t > P * 4 / 18 and t <= P * 5 / 18:
-                    localDir[13] += m
-                if t > P * 5 / 18 and t <= P * 6 / 18:
-                    localDir[14] += m
-                if t > P * 6 / 18 and t <= P * 7 / 18:
-                    localDir[15] += m
-                if t > P * 7 / 18 and t <= P * 8 / 18:
-                    localDir[16] += m
-                if t > P * 8 / 18 and t <= P * 9 / 18:
-                    localDir[17] += m
+                m, t = self.gradient_properties(b, c, imarr)
+
+
+                # if t >= P * -9 / 18 and t <= P * -8 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 0)
+                #     localDir[0] += m
+                # if t > P * -8 / 18 and t <= P * -7 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 1)
+                #     localDir[1] += m
+                # if t > P * -7 / 18 and t <= P * -6 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 2)
+                #     localDir[2] += m
+                # if t > P * -6 / 18 and t <= P * -5 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 3)
+                #     localDir[3] += m
+                # if t > P * -5 / 18 and t <= P * -4 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 4)
+                #     localDir[4] += m
+                # if t > P * -4 / 18 and t <= P * -3 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 5)
+                #     localDir[5] += m
+                # if t > P * -3 / 18 and t <= P * -2 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 6)
+                #     localDir[6] += m
+                # if t > P * -2 / 18 and t <= P * -1 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 7)
+                #     localDir[7] += m
+                # if t > P * -1 / 18 and t <= 0:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 8)
+                #     localDir[8] += m
+                # if t > 0 and t <= P * 1 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 9)
+                #     localDir[9] += m
+                # if t > P * 1 / 18 and t <= P * 2 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 10)
+                #     localDir[10] += m
+                # if t > P * 2 / 18 and t <= P * 3 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 11)
+                #     localDir[11] += m
+                # if t > P * 3 / 18 and t <= P * 4 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 12)
+                #     localDir[12] += m
+                # if t > P * 4 / 18 and t <= P * 5 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 13)
+                #     localDir[13] += m
+                # if t > P * 5 / 18 and t <= P * 6 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 14)
+                #     localDir[14] += m
+                # if t > P * 6 / 18 and t <= P * 7 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 15)
+                #     localDir[15] += m
+                # if t > P * 7 / 18 and t <= P * 8 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 16)
+                #     localDir[16] += m
+                # if t > P * 8 / 18 and t <= P * 9 / 18:
+                #     # print('real',int(round((18 * t) / P, 0)) + 8, 17)
+                #     localDir[17] += m
+                localDir[int(round((18 * t) / P, 0)) + 8] += m
 
         return localDir

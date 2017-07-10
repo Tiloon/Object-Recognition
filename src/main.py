@@ -21,6 +21,7 @@ def main():
     #         print('>>>>>>>>>>>>>>>', imgPath)
     #         img, myDesc, myKps, myFinalImg = compute_or_fecth_pickle(imgPath, nbResize=nbResize, circleSize=circleSize, printImg=False)
     #     except:
+    #         print('######### FAILED FOR', imgPath)
     #         continue
 
     print('>>>>>>>> Start Computing key-points for tested Image')
@@ -71,22 +72,22 @@ def myPrintKeyDiff(imgL, imgR, imgLKps, imgRKps):
     newimg = np.zeros((max(hL, hR), wL + wR, 3), np.uint8)
     newimg[:hL, :wL] = imgL
     newimg[:hR, wL:wR + wL] = imgR
+    imgLKps, imgRKps = cvCenter(imgLKps, imgRKps)
     for LKp, RKp in zip(imgLKps, imgRKps):
         x, y = RKp.toTuple()
         x2, y2 = LKp.toTuple()
         pt_imgL = (int(x2), int(y2))
         pt_imgR = (int(x + wL), int(y))
-        cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255))
-
+        cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255,100), thickness=1)
 
     (x, y), (x2, y2) = findBaseBox(imgRKps, tuple=True)
     cv2.rectangle(newimg, (x + wL, y), (x2 + wL, y2), (0, 255, 0), thickness=15)
 
     sc = scale(imgLKps, imgRKps)
     p1, p2 = findBaseBox(imgRKps)
-    print(p1.toTuple(), p2.toTuple())
-    print(p1.scale(sc).toTuple(), p2.scale(sc).toTuple())
-    cv2.rectangle(newimg, p1.scale(sc).toTuple(), p2.scale(sc).toTuple(), (0, 255, 0), thickness=15)
+    # print(p1.toTuple(), p2.toTuple())
+    # print(p1.scale(sc).toTuple(), p2.scale(sc).toTuple())
+    # cv2.rectangle(newimg, p1.scale(sc).toTuple(), p2.scale(sc).toTuple(), (0, 255, 0), thickness=15)
 
     print_image(newimg)
 
@@ -125,6 +126,7 @@ def compute_or_fecth_pickle(imgPath, nbResize=0, printImg=True, circleSize=5):
 
 
 def print_image(img):
+    # pass
     cv2.namedWindow('image', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('image', 600, 800)
     cv2.imshow('image', img)

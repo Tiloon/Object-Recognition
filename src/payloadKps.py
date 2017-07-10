@@ -1,7 +1,7 @@
 import os
 import pickle
 
-VERSION = 3
+VERSION = 4
 
 class payloadKps:
     def __init__(self, myDesc, myKps):

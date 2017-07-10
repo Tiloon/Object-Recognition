@@ -60,7 +60,7 @@ def doSift(img):
 
 
 def getDescriptors(octaves, flatKps):
-    return desc.descriptor().creatDes(flatKps, octaves[0][0])
+    return desc.descriptor().create_descriptors(flatKps, octaves[0][0])
 
 def getOctaves(img, nbOctaves=4, nbBlur=5, sig=1.6):
     res = [[[] for j in range(nbBlur)] for i in range(nbOctaves)]

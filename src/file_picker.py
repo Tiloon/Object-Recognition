@@ -20,7 +20,7 @@ def chooseImagePath():
     # EASY
     # imgPath = "../resources/facile/20160524_163619.jpg"  # normal devant mur
     # imgPath = "../resources/facile/20160525_143739.jpg" # normal devant fenetre
-    # imgPath = "../resources/facile/20160525_144343.jpg"  # chemise bleu 90°
+    imgPath = "../resources/facile/20160525_144343.jpg"  # chemise bleu 90°
     # imgPath = "../resources/facile/20160525_145003.jpg" # grille
     # QUASIFACILE
     # imgPath = "../resources/quasi_facile/20160506_125941.jpg" #DESSUS
@@ -45,12 +45,16 @@ def chooseImagePath():
     # imgPath = "../resources/green.jpg" #GREEN
     # imgPath = "../resources/quasi_facile/20160525_144427.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191304.jpg"
-    imgPath = "../resources/quasi_facile/20160525_144430.jpg"
+    # imgPath = "../resources/quasi_facile/20160525_144430.jpg"
     print(imgPath)
     return imgPath
 
 def listOfPaths():
-    return ["../resources/facile/20160524_163619.jpg",  # normal devant mur
+    return ["../resources/ref_logo.jpg",
+            "../resources/ref_logo2.jpg",
+            "../resources/ref_logo_hor.jpg",
+            "../resources/ref_canette.jpg",
+            "../resources/facile/20160524_163619.jpg",  # normal devant mur
     "../resources/facile/20160525_145003.jpg", # grille
     "../resources/facile/20160525_144343.jpg",  # chemise bleu 90°
     "../resources/facile/20160525_143739.jpg", # normal devant fenetre

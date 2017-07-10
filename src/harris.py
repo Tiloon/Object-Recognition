@@ -15,7 +15,6 @@ def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, prin
     offsetX, offsetY = window_size, window_size
     img2 = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     # Loop through image and find our corners
-    print("Finding Corners...")
     for y, x in kpList:
         if not (x > window_size and x + 1 < width - window_size
                 and y > window_size and y + 1 < height - window_size):
