@@ -3,6 +3,7 @@ import numpy as np
 
 from src.color import color, print_image
 
+
 # r_opti (11**2)/10
 def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, printCorner=False):
     dy, dx = np.gradient(img)

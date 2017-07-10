@@ -10,10 +10,12 @@ def color(code):
         return rgb(43, 219, 8)
     if code == "lb":
         return rgb(2, 203, 206)
-    return (0, 0, 0)
+    return 0, 0, 0
+
 
 def rgb(r, g, b):
-    return (b, g, r)
+    return b, g, r
+
 
 def print_image(img):
     cv2.namedWindow('image', cv2.WINDOW_NORMAL)

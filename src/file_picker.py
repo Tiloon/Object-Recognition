@@ -13,7 +13,7 @@ def chooseImagePath():
     # imgPath = "../resources/ref_logo.jpg"
     # imgPath = "../resources/ref_logo2.jpg"
     # imgPath = "../resources/ref_logo_hor.jpg"
-    # imgPath = "../resources/ref_canette.jpg"
+    imgPath = "../resources/ref_canette.jpg"
     # imgPath = "../resources/src_google.png"
     # imgPath = "../resources/test_rectangle.png"
     # imgPath = "../resources/lonely_square.png"
@@ -46,7 +46,7 @@ def chooseImagePath():
     # imgPath = "../resources/green.jpg" #GREEN
     # imgPath = "../resources/quasi_facile/20160525_144427.jpg"
     # imgPath = "../resources/quasi_facile/20160523_191304.jpg"
-    imgPath = "../resources/quasi_facile/20160525_144430.jpg"
+    # imgPath = "../resources/quasi_facile/20160525_144430.jpg"
     print(imgPath)
     return imgPath
 

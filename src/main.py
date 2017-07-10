@@ -86,7 +86,7 @@ def myPrintKeyDiff(imgL, imgR, imgLKps, imgRKps):
         pt_imgR = (int(x + wL), int(y))
         cv2.line(newimg, pt_imgL, pt_imgR, (0, 0, 255, 100), thickness=1)
 
-    (x, y), (x2, y2) = findBaseBox(imgRKps, tuple=True)
+    (x, y), (x2, y2) = findBaseBox(imgRKps, tupleFormat=True)
     cv2.rectangle(newimg, (x + wL, y), (x2 + wL, y2), (0, 255, 0), thickness=15)
 
     sc = scale(imgLKps, imgRKps)

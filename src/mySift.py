@@ -7,7 +7,8 @@ from src.color import color
 from src.harris import findCorners
 from src.minMax import findKeyPoints
 
-RESIZE_COEFF= np.sqrt(2)
+RESIZE_COEFF = np.sqrt(2)
+
 
 def makeDiff(img1, img2):
     return cv2.absdiff(img1, img2)
@@ -22,7 +23,6 @@ def getDiffOctaves(octaves):
             tmpImage = makeDiff(blurs[j], blurs[j + 1])
             res[i][j] = tmpImage
     return res
-
 
 
 def cleanKp(kps, octaves):
@@ -62,6 +62,7 @@ def doSift(img):
 def getDescriptors(octaves, flatKps):
     return desc.descriptor().create_descriptors(flatKps, octaves[0][0])
 
+
 def getOctaves(img, nbOctaves=4, nbBlur=5, sig=1.6):
     res = [[[] for j in range(nbBlur)] for i in range(nbOctaves)]
     tmpImg = img.copy()
@@ -69,5 +70,5 @@ def getOctaves(img, nbOctaves=4, nbBlur=5, sig=1.6):
         for y in range(nbBlur):
             pass
             res[x][y] = scipy.ndimage.filters.gaussian_filter(tmpImg, sig ** (y + 1))
-        tmpImg = cv2.resize(tmpImg, dsize=(0, 0), fx=1/RESIZE_COEFF, fy=1/RESIZE_COEFF)
+        tmpImg = cv2.resize(tmpImg, dsize=(0, 0), fx=1 / RESIZE_COEFF, fy=1 / RESIZE_COEFF)
     return res
