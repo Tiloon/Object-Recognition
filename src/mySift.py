@@ -3,9 +3,9 @@ import numpy as np
 import scipy.ndimage
 import desc
 
-from src.color import color
-from src.harris import findCorners
-from src.minMax import findKeyPoints
+from color import color, print_images
+from harris import findCorners
+from minMax import findKeyPoints
 
 RESIZE_COEFF = np.sqrt(2)
 
@@ -29,7 +29,7 @@ def cleanKp(kps, octaves):
     for i in range(len(kps)):
         for j in range(0, len(kps[i])):
             kpList = kps[i][j]
-            kps[i][j] = findCorners(octaves[i][0], kpList)
+            kps[i][j] = findCorners(octaves[i][0], kpList, printCorner=False)
 
 
 def flattenKps(kps):
@@ -47,8 +47,16 @@ def flattenKps(kps):
 def doSift(img):
     print('Start building octaves')
     octaves = getOctaves(img)
+    for i, o in enumerate(octaves):
+        if i < 2:
+            continue
+        print_images(o, name=str(i) + 'th Octave ', resize=False)
     print('Start diff of octaves')
     diffOctaves = getDiffOctaves(octaves)
+    for i, o in enumerate(diffOctaves):
+        if i < 2:
+            continue
+        print_images(o, name=str(i) + 'th Octave DoG ', resize=False)
     print('Start find key points')
     kps = findKeyPoints(diffOctaves)
     print('Remove non-pertinent key-points')

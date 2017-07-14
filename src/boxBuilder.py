@@ -60,7 +60,7 @@ def scale(psL, psR):
     ratios.sort()
     if len(ratios) == 0:
         return 0
-    print(median(ratios))
+    # print(median(ratios))
     # print(ratios)
     return median(ratios)
 

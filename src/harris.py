@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from src.color import color, print_image
+from color import color, print_image
 
 
 # r_opti (11**2)/10
@@ -40,5 +40,5 @@ def findCorners(img, kpList, thresh=10000, opti_r=5, k=0.05, window_size=5, prin
             # print('Not corner :(', x, y, r)
             cv2.circle(img2, (x, y), 3, color('r'), thickness=-1)
     if printCorner:
-        print_image(img2)
+        print_image(img2, name='Harris')
     return cornerList

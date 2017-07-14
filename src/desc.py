@@ -20,11 +20,6 @@ class descriptor:
                 descriptors[(x, y)] = self.create_descriptor(x, y, floatImg)
         return descriptors
 
-    def gradient_properties(self, x, y, img):
-        norm = math.sqrt((img[x + 1, y] - img[x - 1, y]) ** 2 + (img[x, y + 1] - img[x, y - 1]) ** 2)
-        orientation = math.atan((img[x, y + 1] - img[x, y - 1]) / (img[x + 1, y] - img[x - 1, y] + self.eps))
-        return norm, orientation
-
     def create_descriptor(self, x, y, img):
         hists = [self.gradHist(x - 8, y - 8, img),
                  self.gradHist(x - 8, y, img),
@@ -53,3 +48,9 @@ class descriptor:
                 m, t = self.gradient_properties(b, c, img)
                 localDir[int(round((18 * t) / P, 0)) + 8] += m
         return localDir
+
+
+    def gradient_properties(self, x, y, img):
+        norm = math.sqrt((img[x + 1, y] - img[x - 1, y]) ** 2 + (img[x, y + 1] - img[x, y - 1]) ** 2)
+        orientation = math.atan((img[x, y + 1] - img[x, y - 1]) / (img[x + 1, y] - img[x - 1, y] + self.eps))
+        return norm, orientation

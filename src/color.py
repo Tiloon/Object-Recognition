@@ -16,10 +16,21 @@ def color(code):
 def rgb(r, g, b):
     return b, g, r
 
+def print_image(img, name='image'):
+    # pass
+    cv2.namedWindow(name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(name, 600, 800)
+    cv2.imshow(name, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-def print_image(img):
-    cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('image', 600, 800)
-    cv2.imshow('image', img)
+
+def print_images(imgs, resize=True, name='image'):
+    # pass
+    for i, img in enumerate(imgs):
+        cv2.namedWindow(name + str(i), cv2.WINDOW_NORMAL)
+        if resize:
+            cv2.resizeWindow(name + str(i), 600, 800)
+        cv2.imshow(name + str(i), img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
